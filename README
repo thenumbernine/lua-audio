@@ -1,0 +1,3 @@
+LuaJIT audio
+edit currentsystem.lua to choose what backend
+options: OpenAL, SDL_mixer, and null
