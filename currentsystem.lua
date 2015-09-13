@@ -1,3 +1,3 @@
 --return 'sdl_mixer'
---return 'openal'
-return 'null'
+return 'openal'
+--return 'null'

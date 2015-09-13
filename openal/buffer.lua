@@ -1,8 +1,8 @@
 local ffi = require 'ffi'
 local al = require 'ffi.al'
 local class = require 'ext.class'
-require 'ext.io'
-require 'ext.string'	-- for string.csub ... replace with original sub?
+local io = require 'ext.io'
+local string = require 'ext.string'	-- for string.csub ... replace with original sub?
 
 
 local AudioBuffer = class()
@@ -15,7 +15,7 @@ function AudioBuffer:init(filename)
 	local data = assert(io.readfile(filename))
 	local dataIndex = 0
 	local function read(n)
-		local s = data:csub(dataIndex, n)
+		local s = string.csub(data, dataIndex, n)
 		dataIndex = dataIndex + n
 		return s
 	end
@@ -73,7 +73,7 @@ function AudioBuffer:init(filename)
 	numSamples = 8 * math.floor(numSamples / 8)
 	
 	-- the rest is audio data
-	local audioData = data:csub(dataIndex, audioDataSize)
+	local audioData = string.csub(data, dataIndex, audioDataSize)
 	
 	
 	local format

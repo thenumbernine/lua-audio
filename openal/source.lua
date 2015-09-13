@@ -1,7 +1,7 @@
 local ffi = require 'ffi'
 local al = require 'ffi.al'
 local class = require 'ext.class'
-
+local AudioBuffer = require 'audio.openal.buffer'
 
 local AudioSource = class()
 
