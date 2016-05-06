@@ -1,5 +1,5 @@
 local ffi = require 'ffi'
-local al = require 'ffi.al'
+local al = require 'ffi.OpenAL'
 local class = require 'ext.class'
 local AudioBuffer = require 'audio.openal.buffer'
 
