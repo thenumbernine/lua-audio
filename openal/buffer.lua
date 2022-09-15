@@ -1,7 +1,7 @@
 local ffi = require 'ffi'
 local al = require 'ffi.OpenAL'
 local class = require 'ext.class'
-local io = require 'ext.io'
+local file = require 'ext.file'
 local string = require 'ext.string'	-- for string.csub ... replace with original sub?
 
 
@@ -12,7 +12,7 @@ function AudioBuffer:init(filename)
 	-- load data *HERE*
 	-- TODO a better job with ffi since it is required
 
-	local data = assert(io.readfile(filename))
+	local data = assert(file(filename):read())
 	local dataIndex = 0
 	local function read(n)
 		local s = string.csub(data, dataIndex, n)
