@@ -30,7 +30,7 @@ function AudioBuffer:init(filename)
 	end
 
 	-- courtesy of https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
-	
+
 	-- header
 	assert(read(4) == 'RIFF', "expected RIFF")
 	local chunksize = readi(4)
@@ -52,7 +52,7 @@ function AudioBuffer:init(filename)
 	--assert(bitsPerSample/8 == math.floor(bitsPerSample/8), "bitsPerSample is not byte-aligned")
 	assert(blockAlign == numChannels * bitsPerSample / 8)
 	assert(byteRate == sampleRate * numChannels * bitsPerSample / 8)
-	
+
 	-- audacity has junk ...
 	local chunkid = nil
 	local chunksize = nil
@@ -68,14 +68,16 @@ function AudioBuffer:init(filename)
 
 	-- subchunk 2
 	local audioDataSize = assert(chunksize)
+	--[[ if you need it ...
 	local numSamples = audioDataSize / (numChannels * bitsPerSample / 8)
 	--if numSamples/8 ~= math.floor(numSamples/8) then print("numSamples "..numSamples.." is not byte-aligned") end
 	numSamples = 8 * math.floor(numSamples / 8)
-	
+	--]]
+
 	-- the rest is audio data
 	local audioData = string.csub(data, dataIndex, audioDataSize)
-	
-	
+
+
 	local format
 	if bitsPerSample == 8 then
 		if numChannels == 1 then
@@ -97,11 +99,11 @@ function AudioBuffer:init(filename)
 		error("can't handle bitsPerSample "..bitsPerSample)
 	end
 
-	
+
 	self.buffer = ffi.new('ALuint[1]')
 	al.alGenBuffers(1, self.buffer)
 	assert(self.buffer[0] ~= 0, "Could not generate buffer")
-	
+
 	al.alBufferData(
 		self.buffer[0],
 		format,

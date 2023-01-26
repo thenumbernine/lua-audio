@@ -1,7 +1,6 @@
 local class = require 'ext.class'
 
-local AudioBuffer = class()
-AudioSource = class()
+local AudioSource = class()
 function AudioSource:setReferenceDistance() end
 function AudioSource:setMaxDistance() end
 function AudioSource:setRolloffFactor() end
