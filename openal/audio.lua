@@ -1,13 +1,36 @@
 local al = require 'ffi.OpenAL'
 local class = require 'ext.class'
-
-
-local Audio = class()
+local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 
 --local method = 'alc'
 local method = 'alut'
 
+local Audio = class(
+	assert(({
+		alc = function()
+			-- TODO separate context from device
+			return GCWrapper{
+				gctype = 'autorelease_al_device_ptr_t',
+				ctype = 'ALCdevice*',
+			}
+		end,
+		alut = function()
+			return GCWrapper{
+				gctype = 'autorelease_alut_t',
+				ctype = 'int',
+				release = function()
+					local alut = require 'ffi.OpenALUT'
+					alut.alutExit()
+				end,
+			}
+		end,
+	})[method], "failed to find gcwrapper for method "..tostring(method))()
+)
+
+
 function Audio:init()
+	Audio.super.init(self)
+	self.gc.ptr[0] = 1
 if method == 'alc' then
 	self.oldCtx = al.alcGetCurrentContext()
 	self.dev = al.alcOpenDevice(nil)
