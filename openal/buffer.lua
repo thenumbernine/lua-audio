@@ -8,10 +8,11 @@ local string = require 'ext.string'	-- for string.csub ... replace with original
 local AudioBuffer = class()
 
 -- TODO fix this and everyone that uses it ... which isn't many other projects
-function AudioBuffer:init(filename, data)
+-- TODO the ctor is centered around wav files.  also add the ogg loader (now in sandtetris)
+function AudioBuffer:init(filename)
 	-- TODO a better job with ffi since it is required
 	-- load data *HERE*
-	data = data or assert(file(filename):read())
+	local data = assert(file(filename):read())
 
 	local dataIndex = 0
 	local function read(n)
