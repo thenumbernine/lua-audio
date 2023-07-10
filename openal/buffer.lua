@@ -7,12 +7,12 @@ local string = require 'ext.string'	-- for string.csub ... replace with original
 
 local AudioBuffer = class()
 
-function AudioBuffer:init(filename)
-
-	-- load data *HERE*
+-- TODO fix this and everyone that uses it ... which isn't many other projects
+function AudioBuffer:init(filename, data)
 	-- TODO a better job with ffi since it is required
+	-- load data *HERE*
+	data = data or assert(file(filename):read())
 
-	local data = assert(file(filename):read())
 	local dataIndex = 0
 	local function read(n)
 		local s = string.csub(data, dataIndex, n)
