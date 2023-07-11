@@ -1,5 +1,5 @@
 local ffi = require 'ffi'
-require 'ffi.c.stdio'
+local stdio = require 'ffi.c.stdio'
 local class = require 'ext.class'
 local table = require 'ext.table'
 local al = require 'ffi.OpenAL'
@@ -8,7 +8,7 @@ local vorbisfile = require 'ffi.vorbis.vorbisfile'
 local OGGLoader = class()
 
 function OGGLoader:load(filename)
-	local fp = ffi.C.fopen(filename, 'rb')
+	local fp = stdio.fopen(filename, 'rb')
 	if fp == nil then
 		error("unable to open file for reading: "..tostring(filename))
 	end
@@ -16,21 +16,8 @@ function OGGLoader:load(filename)
 	-- example from: https://xiph.org/vorbis/doc/vorbisfile/example.html
 	local vf = ffi.new'OggVorbis_File[1]'
 	-- TODO put this in ffi.vorbis.vorbisfile along with the other static-init stuff
-	local OV_CALLBACKS_NOCLOSE = ffi.new'ov_callbacks'
-	OV_CALLBACKS_NOCLOSE.read_func = ffi.C.fread
-	--[[ who puts a function as a static in a header anyways?
-	OV_CALLBACKS_NOCLOSE.seek_func = ffi.C._ov_header_fseek_wrap
-	--]]
-	-- [[
-	-- i'd free the closure but meh
-	OV_CALLBACKS_NOCLOSE.seek_func = ffi.cast('int (*)(void *, ogg_int64_t, int)', function(f,off,whence)
-		if f == nil then return -1 end
-		return ffi.C.fseek(f,off,whence)
-	end)
-	--]]
-	OV_CALLBACKS_NOCLOSE.close_func = nil
-	OV_CALLBACKS_NOCLOSE.tell_func = ffi.C.ftell
-	if vorbisfile.ov_open_callbacks(fp, vf, nil, 0, OV_CALLBACKS_NOCLOSE) < 0 then
+
+	if vorbisfile.ov_open_callbacks(fp, vf, nil, 0, vorbisfile.OV_CALLBACKS_DEFAULT) < 0 then
 		error"Input does not appear to be an Ogg bitstream"
 	end
 

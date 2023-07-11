@@ -8,6 +8,10 @@ local file = require 'ext.file'
 local al = require 'ffi.OpenAL'
 local string = require 'ext.string'	-- for string.csub ... replace with original sub?
 
+ffi.cdef[[
+
+]]
+
 local WavLoader = class()
 
 function WavLoader:load(filename)
