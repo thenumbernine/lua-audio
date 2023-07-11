@@ -7,15 +7,14 @@ local vorbisfile = require 'ffi.vorbis.vorbisfile'
 
 local OGGLoader = class()
 
+-- example from: https://xiph.org/vorbis/doc/vorbisfile/example.html
 function OGGLoader:load(filename)
 	local fp = stdio.fopen(filename, 'rb')
 	if fp == nil then
 		error("unable to open file for reading: "..tostring(filename))
 	end
 
-	-- example from: https://xiph.org/vorbis/doc/vorbisfile/example.html
 	local vf = ffi.new'OggVorbis_File[1]'
-	-- TODO put this in ffi.vorbis.vorbisfile along with the other static-init stuff
 
 	if vorbisfile.ov_open_callbacks(fp, vf, nil, 0, vorbisfile.OV_CALLBACKS_DEFAULT) < 0 then
 		error"Input does not appear to be an Ogg bitstream"
@@ -49,7 +48,7 @@ function OGGLoader:load(filename)
 	local bitsPerSample = 16
 	local sampleRate = vi[0].rate
 	--local duration = vorbisfile.ov_time_total(vf, -1)
-	
+
 	local format
 	if channels == 1 and bitsPerSample == 8 then
 		format = al.AL_FORMAT_MONO8
