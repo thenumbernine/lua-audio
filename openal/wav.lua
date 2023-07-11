@@ -67,11 +67,12 @@ function WavLoader:load(filename)
 		chunkid = ffi.string(ptr + dataIndex, 4)
 		dataIndex = dataIndex + 4
 		ffi.copy(uint32, ptr + dataIndex, 4)
+		dataIndex = dataIndex + 4
 		chunksize = uint32[0]
 		if chunkid == 'data' then break end
 		dataIndex = dataIndex + chunksize
 	end
-	if dataIndex >= datalen then
+	if dataIndex > datalen then
 		error("got to eof without finding data")
 	end
 
