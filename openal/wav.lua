@@ -6,69 +6,72 @@ local ffi = require 'ffi'
 local class = require 'ext.class'
 local file = require 'ext.file'
 local al = require 'ffi.OpenAL'
-local string = require 'ext.string'	-- for string.csub ... replace with original sub?
 
 ffi.cdef[[
-
+typedef struct {
+	char RIFF[4];
+	uint32_t chunksize;
+	char WAVE[4];
+	char fmt_[4];
+	uint32_t subchunk1size;
+	uint16_t audioFormat;
+	uint16_t numChannels;
+	uint32_t sampleRate;
+	uint32_t byteRate;
+	uint16_t blockAlign;
+	uint16_t bitsPerSample;
+} wavheader_t;
 ]]
-
+assert(ffi.sizeof'wavheader_t' == 36)
 local WavLoader = class()
 
 function WavLoader:load(filename)
 	-- TODO a better job with ffi since it is required
 	-- load data *HERE*
 	local data = assert(file(filename):read())
-
+	local datalen = #data
 	local dataIndex = 0
-	local function read(n)
-		local s = string.csub(data, dataIndex, n)
-		dataIndex = dataIndex + n
-		return s
-	end
-	local function readi(n)
-		local s = read(n)
-		local x = 0
-		for i=n,1,-1 do
-			x = x * 256
-			x = x + s:sub(i,i):byte()
-		end
-		return x
-	end
+	local ptr = ffi.cast('char*', data)
 
 	-- courtesy of https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
+	local hdr = ffi.new'wavheader_t[1]'
+	ffi.copy(hdr, ptr, ffi.sizeof'wavheader_t')
+	dataIndex = dataIndex + ffi.sizeof'wavheader_t'
 
-	-- header
-	assert(read(4) == 'RIFF', "expected RIFF")
-	local chunksize = readi(4)
+	assert(ffi.string(hdr[0].RIFF, 4) == 'RIFF')
+	local chunksize = hdr[0].chunksize
 	-- 36 * audioDataSize
 	-- 4 + (8 + subchunk1size) + (8 + audioDataSize)
-	assert(read(4) == 'WAVE', "expected WAVE")
+	assert(ffi.string(hdr[0].WAVE, 4) == 'WAVE')
 
 	-- subchunk 1
-	assert(read(4) == 'fmt ', "expected fmt ")
-	local subchunk1size = readi(4)
+	assert(ffi.string(hdr[0].fmt_, 4) == 'fmt ')
+	local subchunk1size = hdr[0].subchunk1size
 	assert(subchunk1size == 16, "expected subchunk1size == 16, got "..subchunk1size)
-	local audioFormat = readi(2)
+	local audioFormat = hdr[0].audioFormat
 	assert(audioFormat == 1, "expected audioFormat == 1, got "..audioFormat)
-	local numChannels = readi(2)
-	local sampleRate = readi(4)
-	local byteRate = readi(4)
-	local blockAlign = readi(2)
-	local bitsPerSample = readi(2)
+	local numChannels = hdr[0].numChannels
+	local sampleRate = hdr[0].sampleRate
+	local byteRate = hdr[0].byteRate
+	local blockAlign = hdr[0].blockAlign
+	local bitsPerSample = hdr[0].bitsPerSample
 	--assert(bitsPerSample/8 == math.floor(bitsPerSample/8), "bitsPerSample is not byte-aligned")
 	assert(blockAlign == numChannels * bitsPerSample / 8)
 	assert(byteRate == sampleRate * numChannels * bitsPerSample / 8)
 
 	-- audacity has junk ...
+	local uint32 = ffi.new'uint32_t[1]'
 	local chunkid = nil
 	local chunksize = nil
-	while dataIndex < #data do
-		chunkid = read(4)
-		chunksize = assert(readi(4))
+	while dataIndex < datalen do
+		chunkid = ffi.string(ptr + dataIndex, 4)
+		dataIndex = dataIndex + 4
+		ffi.copy(uint32, ptr + dataIndex, 4)
+		chunksize = uint32[0]
 		if chunkid == 'data' then break end
 		dataIndex = dataIndex + chunksize
 	end
-	if dataIndex >= #data then
+	if dataIndex >= datalen then
 		error("got to eof without finding data")
 	end
 
@@ -81,7 +84,7 @@ function WavLoader:load(filename)
 	--]]
 
 	-- the rest is audio data
-	local audioData = string.csub(data, dataIndex, audioDataSize)
+	local audioData = string.sub(data, dataIndex+1, dataIndex+audioDataSize)
 
 
 	local format
