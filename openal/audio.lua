@@ -2,8 +2,8 @@ local al = require 'ffi.OpenAL'
 local class = require 'ext.class'
 local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 
---local method = 'alc'
-local method = 'alut'
+local method = 'alc'
+--local method = 'alut'
 
 local Audio = class(
 	assert(({
@@ -12,6 +12,9 @@ local Audio = class(
 			return GCWrapper{
 				gctype = 'autorelease_al_device_ptr_t',
 				ctype = 'ALCdevice*',
+				release = function()
+					-- ... ??
+				end,
 			}
 		end,
 		alut = function()
@@ -30,7 +33,6 @@ local Audio = class(
 
 function Audio:init()
 	Audio.super.init(self)
-	self.gc.ptr[0] = 1
 if method == 'alc' then
 	self.oldCtx = al.alcGetCurrentContext()
 	self.dev = al.alcOpenDevice(nil)
@@ -45,8 +47,10 @@ if method == 'alc' then
 		al.alcCloseDevice(self.dev)
 		error("Could not create a context")
 	end
+	self.gc.ptr[0] = self.ctx
 	al.alcMakeContextCurrent(self.ctx)
 elseif method == 'alut' then
+	self.gc.ptr[0] = 1
 	local alut = require 'ffi.OpenALUT'
 
 	local alutErrors = {}
