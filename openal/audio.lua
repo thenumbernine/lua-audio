@@ -48,8 +48,37 @@ if method == 'alc' then
 	al.alcMakeContextCurrent(self.ctx)
 elseif method == 'alut' then
 	local alut = require 'ffi.OpenALUT'
+
+	local alutErrors = {}
+	for _,k in ipairs{
+		'ALUT_ERROR_NO_ERROR',
+		'ALUT_ERROR_OUT_OF_MEMORY',
+		'ALUT_ERROR_INVALID_ENUM',
+		'ALUT_ERROR_INVALID_VALUE',
+		'ALUT_ERROR_INVALID_OPERATION',
+		'ALUT_ERROR_NO_CURRENT_CONTEXT',
+		'ALUT_ERROR_AL_ERROR_ON_ENTRY',
+		'ALUT_ERROR_ALC_ERROR_ON_ENTRY',
+		'ALUT_ERROR_OPEN_DEVICE',
+		'ALUT_ERROR_CLOSE_DEVICE',
+		'ALUT_ERROR_CREATE_CONTEXT',
+		'ALUT_ERROR_MAKE_CONTEXT_CURRENT',
+		'ALUT_ERROR_DESTROY_CONTEXT',
+		'ALUT_ERROR_GEN_BUFFERS',
+		'ALUT_ERROR_BUFFER_DATA',
+		'ALUT_ERROR_IO_ERROR',
+		'ALUT_ERROR_UNSUPPORTED_FILE_TYPE',
+		'ALUT_ERROR_UNSUPPORTED_FILE_SUBTYPE',
+		'ALUT_ERROR_CORRUPT_OR_TRUNCATED_DATA',
+	} do
+		alutErrors[alut[k]] = k
+	end
 	if alut.alutInit(nil, nil) == 0 then
-		error('alutInit failed with error '..alut.alutGetError())
+		local err = alut.alutGetError()
+		local errstr = alutErrors[tonumber(err)]
+		error('alutInit failed with error '..err
+			..(errstr and ' ('..errstr..')' or '')
+		)
 	end
 	al.alGetError()	-- "clear the error", what the official docs say ...
 	-- http://open-activewrl.sourceforge.net/data/OpenAL_PGuide.pdf
