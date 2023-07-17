@@ -4,7 +4,7 @@ but sdl_mixer has its own wav loader so...
 --]]
 local ffi = require 'ffi'
 local class = require 'ext.class'
-local file = require 'ext.file'
+local path = require 'ext.path'
 local al = require 'ffi.OpenAL'
 
 ffi.cdef[[
@@ -28,7 +28,7 @@ local WavLoader = class()
 function WavLoader:load(filename)
 	-- TODO a better job with ffi since it is required
 	-- load data *HERE*
-	local data = assert(file(filename):read())
+	local data = assert(path(filename):read())
 	local datalen = #data
 	local dataIndex = 0
 	local ptr = ffi.cast('char*', data)

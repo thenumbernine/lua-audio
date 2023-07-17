@@ -2,7 +2,7 @@ local ffi = require 'ffi'
 local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 local al = require 'ffi.OpenAL'
 local class = require 'ext.class'
-local file = require 'ext.file'
+local path = require 'ext.path'
 
 local AudioBuffer = class(GCWrapper{
 	gctype = 'autorelease_al_buffer_ptr_t',
@@ -20,7 +20,7 @@ AudioBuffer.loaders = {
 }
 
 local function getLoaderForFilename(filename)
-	local ext = select(2, file(filename):getext())
+	local ext = select(2, path(filename):getext())
 	if ext then ext = ext:lower() end
 	assert(ext, "failed to get extension for filename "..tostring(filename))
 	local loaderRequire = assert(AudioBuffer.loaders[ext], "failed to find loader class for extension "..ext.." for filename "..filename)
