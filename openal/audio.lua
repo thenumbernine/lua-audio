@@ -10,8 +10,8 @@ local Audio = class(
 		alc = function()
 			-- TODO separate context from device
 			return GCWrapper{
-				gctype = 'autorelease_al_device_ptr_t',
-				ctype = 'ALCdevice*',
+				gctype = 'autorelease_al_context_ptr_t',
+				ctype = 'ALCcontext*',
 				release = function()
 					-- ... ??
 				end,
