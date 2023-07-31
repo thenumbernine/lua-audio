@@ -1,9 +1,9 @@
 local ffi = require 'ffi'
-local stdio = require 'ffi.c.stdio'
+local stdio = require 'ffi.req' 'c.stdio'
 local class = require 'ext.class'
 local table = require 'ext.table'
-local al = require 'ffi.OpenAL'
-local vorbisfile = require 'ffi.vorbis.vorbisfile'
+local al = require 'ffi.req' 'OpenAL'
+local vorbisfile = require 'ffi.req' 'vorbis.vorbisfile'
 
 local OGGLoader = class()
 
