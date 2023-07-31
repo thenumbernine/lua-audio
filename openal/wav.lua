@@ -5,7 +5,7 @@ but sdl_mixer has its own wav loader so...
 local ffi = require 'ffi'
 local class = require 'ext.class'
 local path = require 'ext.path'
-local al = require 'ffi.OpenAL'
+local al = require 'ffi.req' 'OpenAL'
 
 ffi.cdef[[
 typedef struct {

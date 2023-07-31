@@ -1,6 +1,6 @@
 local ffi = require 'ffi'
 local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
-local al = require 'ffi.OpenAL'
+local al = require 'ffi.req' 'OpenAL'
 local class = require 'ext.class'
 local AudioBuffer = require 'audio.openal.buffer'
 

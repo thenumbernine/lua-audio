@@ -1,4 +1,4 @@
-local al = require 'ffi.OpenAL'
+local al = require 'ffi.req' 'OpenAL'
 local class = require 'ext.class'
 local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 
@@ -22,7 +22,7 @@ local Audio = class(
 				gctype = 'autorelease_alut_t',
 				ctype = 'int',
 				release = function()
-					local alut = require 'ffi.OpenALUT'
+					local alut = require 'ffi.req' 'OpenALUT'
 					alut.alutExit()
 				end,
 			}
@@ -51,7 +51,7 @@ if method == 'alc' then
 	al.alcMakeContextCurrent(self.ctx)
 elseif method == 'alut' then
 	self.gc.ptr[0] = 1
-	local alut = require 'ffi.OpenALUT'
+	local alut = require 'ffi.req' 'OpenALUT'
 
 	local alutErrors = {}
 	for _,k in ipairs{
@@ -100,7 +100,7 @@ if method == 'alc' then
 	self.ctx = nil
 	self.dev = nil
 elseif method == 'alut' then
-	local alut = require 'ffi.OpenALUT'
+	local alut = require 'ffi.req' 'OpenALUT'
 	alut.alutExit()
 end
 end
