@@ -1,4 +1,4 @@
-local mix = require 'ffi.sdl_mixer'
+local mix = require 'ffi.req' 'sdl_mixer'
 local class = require 'ext.class'
 
 local function Mix_PlayChannel(channel,chunk,loops)

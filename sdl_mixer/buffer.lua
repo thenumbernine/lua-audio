@@ -1,5 +1,5 @@
-local sdl = require 'ffi.sdl'
-local mix = require 'ffi.sdl_mixer'
+local sdl = require 'ffi.req' 'sdl'
+local mix = require 'ffi.req' 'sdl_mixer'
 local class = require 'ext.class'
 
 
