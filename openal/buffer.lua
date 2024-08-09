@@ -1,18 +1,10 @@
+require 'ext.gc'	-- add __gc to luajit
 local ffi = require 'ffi'
-local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 local al = require 'ffi.req' 'OpenAL'
 local class = require 'ext.class'
 local path = require 'ext.path'
 
-local AudioBuffer = class(GCWrapper{
-	gctype = 'autorelease_al_buffer_ptr_t',
-	ctype = 'ALuint',
-	release = function(ptr)
--- why does calling this upno release give me OpenAL shutdown error "AL lib: (EE) alc_cleanup: 1 device not closed"
--- maybe because the openal context and device are shutdown manually, so this is called after the device is already shut down
---		al.alDeleteBuffers(1, ptr) 
-	end,
-})
+local AudioBuffer = class()
 
 AudioBuffer.loaders = {
 	wav = 'audio.openal.wav',
@@ -32,9 +24,9 @@ end
 -- TODO fix this and everyone that uses it ... which isn't many other projects
 -- TODO the ctor is centered around wav files.  also add the ogg loader (now in sandtetris)
 function AudioBuffer:init(filename)
-	AudioBuffer.super.init(self)
-	al.alGenBuffers(1, self.gc.ptr)
-	self.id = self.gc.ptr[0]
+	local ptr = ffi.new'ALuint[1]'
+	al.alGenBuffers(1, ptr)
+	self.id = ptr[0]
 	assert(self.id ~= 0, "Could not generate buffer")
 
 	local loader = getLoaderForFilename(filename)
@@ -42,5 +34,15 @@ function AudioBuffer:init(filename)
 
 	al.alBufferData(self.id, result.format, result.data, result.size, result.freq)
 end
+
+function AudioBuffer:delete()
+	if self.id == nil then return end
+	local ptr = ffi.new'ALuint[1]'
+	ptr[0] = self.id
+	al.alDeleteBuffers(1, ptr) 
+	self.id = nil
+end
+
+AudioBuffer.__gc = AudioBuffer.delete
 
 return AudioBuffer

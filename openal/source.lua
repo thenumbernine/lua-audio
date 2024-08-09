@@ -1,21 +1,15 @@
+require 'ext.gc'	-- add __gc to luajit
 local ffi = require 'ffi'
-local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 local al = require 'ffi.req' 'OpenAL'
 local class = require 'ext.class'
 local AudioBuffer = require 'audio.openal.buffer'
 
-local AudioSource = class(GCWrapper{
-	gctype = 'autorelease_al_source_ptr_t',
-	ctype = 'ALuint',
-	release = function(ptr)
-		al.alDeleteSources(1, ptr)
-	end,
-})
+local AudioSource = class()
 
 function AudioSource:init(buffer)
-	AudioSource.super.init(self)
-	al.alGenSources(1, self.gc.ptr)
-	self.id = self.gc.ptr[0]
+	local ptr = ffi.new'ALuint[1]'
+	al.alGenSources(1, ptr)
+	self.id = ptr[0]
 
 	if buffer then
 		self:setBuffer(buffer)
@@ -25,6 +19,14 @@ function AudioSource:init(buffer)
 	self:setLooping(false)
 	self:setPosition(0,0,0)
 	self:setVelocity(0,0,0)
+end
+
+function AudioSource:delete()
+	if self.id == nil then return end
+	local ptr = ffi.new'ALuint[1]'
+	ptr[0] = self.id
+	al.alDeleteSources(1, ptr)
+	self.id = nil
 end
 
 function AudioSource:setBuffer(buffer)

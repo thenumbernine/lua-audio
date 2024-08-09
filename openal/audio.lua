@@ -1,92 +1,77 @@
+require 'ext.gc'	-- add __gc to luajit
 local al = require 'ffi.req' 'OpenAL'
 local class = require 'ext.class'
-local GCWrapper = require 'ffi.gcwrapper.gcwrapper'
 
 local method = 'alc'
 --local method = 'alut'
 
-local Audio = class(
-	assert(({
-		alc = function()
-			-- TODO separate context from device
-			return GCWrapper{
-				gctype = 'autorelease_al_context_ptr_t',
-				ctype = 'ALCcontext*',
-				release = function()
-					-- ... ??
-				end,
-			}
-		end,
-		alut = function()
-			return GCWrapper{
-				gctype = 'autorelease_alut_t',
-				ctype = 'int',
-				release = function()
-					local alut = require 'ffi.req' 'OpenALUT'
-					alut.alutExit()
-				end,
-			}
-		end,
-	})[method], "failed to find gcwrapper for method "..tostring(method))()
-)
+local Audio = class()
 
+if method == 'alc' then
+	-- TODO separate context from device
+elseif method == 'alut' then
+	Audio.__gc = function()
+		local alut = require 'ffi.req' 'OpenALUT'
+		alut.alutExit()
+	end
+else
+	error("failed to find gcwrapper for method "..tostring(method))
+end
 
 function Audio:init()
-	Audio.super.init(self)
-if method == 'alc' then
-	self.oldCtx = al.alcGetCurrentContext()
-	self.dev = al.alcOpenDevice(nil)
-	if self.dev == nil then
-		error("Could not open the default OpenAL device")
-	end
-	self.ctx = al.alcCreateContext(self.dev, nil)
-	if self.ctx == nil then
-		if self.oldCtx ~= nil then
-			al.alcMakeContextCurrent(self.oldCtx)
+	if method == 'alc' then
+		self.oldCtx = al.alcGetCurrentContext()
+		self.dev = al.alcOpenDevice(nil)
+		if self.dev == nil then
+			error("Could not open the default OpenAL device")
 		end
-		al.alcCloseDevice(self.dev)
-		error("Could not create a context")
-	end
-	self.gc.ptr[0] = self.ctx
-	al.alcMakeContextCurrent(self.ctx)
-elseif method == 'alut' then
-	self.gc.ptr[0] = 1
-	local alut = require 'ffi.req' 'OpenALUT'
+		self.ctx = al.alcCreateContext(self.dev, nil)
+		if self.ctx == nil then
+			if self.oldCtx ~= nil then
+				al.alcMakeContextCurrent(self.oldCtx)
+			end
+			al.alcCloseDevice(self.dev)
+			error("Could not create a context")
+		end
 
-	local alutErrors = {}
-	for _,k in ipairs{
-		'ALUT_ERROR_NO_ERROR',
-		'ALUT_ERROR_OUT_OF_MEMORY',
-		'ALUT_ERROR_INVALID_ENUM',
-		'ALUT_ERROR_INVALID_VALUE',
-		'ALUT_ERROR_INVALID_OPERATION',
-		'ALUT_ERROR_NO_CURRENT_CONTEXT',
-		'ALUT_ERROR_AL_ERROR_ON_ENTRY',
-		'ALUT_ERROR_ALC_ERROR_ON_ENTRY',
-		'ALUT_ERROR_OPEN_DEVICE',
-		'ALUT_ERROR_CLOSE_DEVICE',
-		'ALUT_ERROR_CREATE_CONTEXT',
-		'ALUT_ERROR_MAKE_CONTEXT_CURRENT',
-		'ALUT_ERROR_DESTROY_CONTEXT',
-		'ALUT_ERROR_GEN_BUFFERS',
-		'ALUT_ERROR_BUFFER_DATA',
-		'ALUT_ERROR_IO_ERROR',
-		'ALUT_ERROR_UNSUPPORTED_FILE_TYPE',
-		'ALUT_ERROR_UNSUPPORTED_FILE_SUBTYPE',
-		'ALUT_ERROR_CORRUPT_OR_TRUNCATED_DATA',
-	} do
-		alutErrors[alut[k]] = k
+		al.alcMakeContextCurrent(self.ctx)
+	elseif method == 'alut' then
+		local alut = require 'ffi.req' 'OpenALUT'
+
+		local alutErrors = {}
+		for _,k in ipairs{
+			'ALUT_ERROR_NO_ERROR',
+			'ALUT_ERROR_OUT_OF_MEMORY',
+			'ALUT_ERROR_INVALID_ENUM',
+			'ALUT_ERROR_INVALID_VALUE',
+			'ALUT_ERROR_INVALID_OPERATION',
+			'ALUT_ERROR_NO_CURRENT_CONTEXT',
+			'ALUT_ERROR_AL_ERROR_ON_ENTRY',
+			'ALUT_ERROR_ALC_ERROR_ON_ENTRY',
+			'ALUT_ERROR_OPEN_DEVICE',
+			'ALUT_ERROR_CLOSE_DEVICE',
+			'ALUT_ERROR_CREATE_CONTEXT',
+			'ALUT_ERROR_MAKE_CONTEXT_CURRENT',
+			'ALUT_ERROR_DESTROY_CONTEXT',
+			'ALUT_ERROR_GEN_BUFFERS',
+			'ALUT_ERROR_BUFFER_DATA',
+			'ALUT_ERROR_IO_ERROR',
+			'ALUT_ERROR_UNSUPPORTED_FILE_TYPE',
+			'ALUT_ERROR_UNSUPPORTED_FILE_SUBTYPE',
+			'ALUT_ERROR_CORRUPT_OR_TRUNCATED_DATA',
+		} do
+			alutErrors[alut[k]] = k
+		end
+		if alut.alutInit(nil, nil) == 0 then
+			local err = alut.alutGetError()
+			local errstr = alutErrors[tonumber(err)]
+			error('alutInit failed with error '..err
+				..(errstr and ' ('..errstr..')' or '')
+			)
+		end
+		al.alGetError()	-- "clear the error", what the official docs say ...
+		-- http://open-activewrl.sourceforge.net/data/OpenAL_PGuide.pdf
 	end
-	if alut.alutInit(nil, nil) == 0 then
-		local err = alut.alutGetError()
-		local errstr = alutErrors[tonumber(err)]
-		error('alutInit failed with error '..err
-			..(errstr and ' ('..errstr..')' or '')
-		)
-	end
-	al.alGetError()	-- "clear the error", what the official docs say ...
-	-- http://open-activewrl.sourceforge.net/data/OpenAL_PGuide.pdf
-end
 end
 
 function Audio:shutdown()
