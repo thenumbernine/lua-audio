@@ -4,7 +4,7 @@ local AudioSource = class()
 function AudioSource:setReferenceDistance() end
 function AudioSource:setMaxDistance() end
 function AudioSource:setRolloffFactor() end
-function AudioSource:setBuffer(buffer) end
+function AudioSource:setBuffer(buffer) return self end
 function AudioSource:setLooping(looping) end
 function AudioSource:setGain(gain) end
 function AudioSource:setPitch(pitch) end
