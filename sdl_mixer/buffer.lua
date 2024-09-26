@@ -1,3 +1,4 @@
+require 'ext.gc'	-- add __gc to luajit
 local sdl = require 'ffi.req' 'sdl'
 local mix = require 'ffi.req' 'sdl_mixer'
 local class = require 'ext.class'
@@ -19,6 +20,6 @@ end
 function AudioBuffer:free()
 	mix.Mix_FreeChunk(self.buffer)
 end
+AudioBuffer.__gc = AudioBuffer.free
 
 return AudioBuffer
-

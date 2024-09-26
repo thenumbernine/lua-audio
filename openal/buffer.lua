@@ -22,17 +22,25 @@ local function getLoaderForFilename(filename)
 end
 
 -- TODO fix this and everyone that uses it ... which isn't many other projects
--- TODO the ctor is centered around wav files.  also add the ogg loader (now in sandtetris)
-function AudioBuffer:init(filename)
+-- TODO the ctor is centered around files.  also buffer support? 
+function AudioBuffer:init(...)
 	local ptr = ffi.new'ALuint[1]'
 	al.alGenBuffers(1, ptr)
 	self.id = ptr[0]
 	assert(self.id ~= 0, "Could not generate buffer")
 
-	local loader = getLoaderForFilename(filename)
-	local result = loader:load(filename)
+	if type(...) == 'string' then
+		local filename = ...
+		local loader = getLoaderForFilename(filename)
+		local result = loader:load(filename)
+		self:setData(result.format, result.data, result.size, result.freq)
+	elseif select('#', ...) == 4 then
+		self:setData(...)
+	end
+end
 
-	al.alBufferData(self.id, result.format, result.data, result.size, result.freq)
+function AudioBuffer:setData(format, data, size, freq)
+	al.alBufferData(self.id, format, data, size, freq)
 end
 
 function AudioBuffer:delete()

@@ -21,4 +21,3 @@ function Audio:getMaxSources()
 end
 
 return Audio
-
