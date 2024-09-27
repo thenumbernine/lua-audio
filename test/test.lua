@@ -50,7 +50,7 @@ local gaussianFilter = matrix{gaussianFilterSize}:lambda(function(i)
 end)
 gaussianFilter = gaussianFilter / gaussianFilter:sum()
 --assereteq(gaussianFilter:sum(), 1)
--- [[ test to make sure it matches a pure sine when it is only a dirac delta at gaussianFilterMid (i.e. infinite sigma)
+--[[ test to make sure it matches a pure sine when it is only a dirac delta at gaussianFilterMid (i.e. infinite sigma)
 gaussianFilter = gaussianFilter * 0
 gaussianFilter[gaussianFilterMid] = 1
 --]]
@@ -72,10 +72,10 @@ for i=0,sampleFrames-1 do
 	--local freq = 262		-- middle C = A * 2^(3/12) since C is 3 half-steps up from A
 	--local freq = 257		-- middle C for conspiracy theorists
 
-	-- [[ pure sine wave
+	--[[ pure sine wave
 	local ampl = sinewave(t * freq)
 	--]]
-	--[[ gaussianian sample of integers octaves (TODO thrown in some nearly rationals as well so we get chords instead of just octaves)
+	-- [[ gaussianian sample of integers octaves (TODO thrown in some nearly rationals as well so we get chords instead of just octaves)
 	--local f = sinewave
 	local f = trianglewave
 	--local f = sawtoothwave
