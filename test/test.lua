@@ -10,22 +10,22 @@ local AudioBuffer = require 'audio.buffer'
 
 local audio = Audio()
 
-local duration = 2 	-- seconds
+local durationInSeconds = 2 	-- seconds
 -- [=[ custom buffer
---local sampleRate = 8000			-- samples / second
---local sampleRate = 11025			-- samples / second
---local sampleRate = 22050			-- samples / second
-local sampleRate = 32000			-- samples / second <- SNES SPC sampling rate
---local sampleRate = 44100			-- samples / second
---local sampleRate = 48000			-- samples / second
-local numChannels = 1
---local numChannels = 2	-- channels?  whats it called mono vs stereo, number of outputs?  idk terminology
+--local sampleFramesPerSecond = 8000			-- sample frames / second
+--local sampleFramesPerSecond = 11025			-- sample frames / second
+--local sampleFramesPerSecond = 22050			-- sample frames / second
+local sampleFramesPerSecond = 32000			-- sample frames / second <- SNES SPC sampling rate
+--local sampleFramesPerSecond = 44100			-- sample frames / second
+--local sampleFramesPerSecond = 48000			-- sample frames / second
+local outputChannels = 1
+--local outputChannels = 2	-- channels?  whats it called mono vs stereo, number of outputs?  idk terminology
 local sampleType = 'uint8_t'
 --local sampleType = 'int16_t'
 
-local numSamplesPerChannel = sampleRate * duration	-- ... x 5 seconds of play
-local numSamplesTotal = numSamplesPerChannel * numChannels
-local data = ffi.new(sampleType..'[?]', numSamplesTotal)	-- x2 for stereo
+local sampleFrames = sampleFramesPerSecond * durationInSeconds	-- ... x 5 seconds of play
+local samples = sampleFrames * outputChannels
+local data = ffi.new(sampleType..'[?]', samples)	-- x2 for stereo
 
 local function sinewave(t)
 	return math.sin(t * (2 * math.pi))
@@ -50,36 +50,37 @@ local gaussianFilter = matrix{gaussianFilterSize}:lambda(function(i)
 end)
 gaussianFilter = gaussianFilter / gaussianFilter:sum()
 --assereteq(gaussianFilter:sum(), 1)
---[[ test to make sure it matches a pure sine when it is only a dirac delta at gaussianFilterMid (i.e. infinite sigma)
+-- [[ test to make sure it matches a pure sine when it is only a dirac delta at gaussianFilterMid (i.e. infinite sigma)
 gaussianFilter = gaussianFilter * 0
 gaussianFilter[gaussianFilterMid] = 1
 --]]
 
 -- OpenAL specs
--- https://www.openal.org/documentation/openal-1.1-specification.pdf 
+-- https://www.openal.org/documentation/openal-1.1-specification.pdf
 --	section 5.3.4:
 -- "8-bit data is expressed as an unsigned value over the range 0 to 255, 128 being an audio output level of zero."
 -- "16-bit data is expressed as a signed value over the range -32768 to 32767, 0 being an audio output level of zero. Byte order for 16-bit values is determined by the native format of the CPU."
 local amplZero = assertindex({uint8_t=128, int16_t=0}, sampleType)
 local amplMax = assertindex({uint8_t=127, int16_t=32767}, sampleType)
 local e = 0
-for i=0,numSamplesPerChannel-1 do
-	local t = i/sampleRate
-	
+for i=0,sampleFrames-1 do
+	local t = i/sampleFramesPerSecond
+
+	local freq = 440
 	--local freq = 220		-- middle A
 	--local freq = 216		-- middle A for conspiracy theorists
 	--local freq = 262		-- middle C = A * 2^(3/12) since C is 3 half-steps up from A
-	local freq = 257		-- middle C for conspiracy theorists
+	--local freq = 257		-- middle C for conspiracy theorists
 
-	--[[ pure sine wave
+	-- [[ pure sine wave
 	local ampl = sinewave(t * freq)
 	--]]
-	-- [[ gaussianian sample of integers octaves (TODO thrown in some nearly rationals as well so we get chords instead of just octaves)
+	--[[ gaussianian sample of integers octaves (TODO thrown in some nearly rationals as well so we get chords instead of just octaves)
 	--local f = sinewave
 	local f = trianglewave
 	--local f = sawtoothwave
 	--local f = squarewave
-	-- sounds like an organ 
+	-- sounds like an organ
 	local ampl = 0
 	local filterPower = 2	-- 2 <-> 12/12 <-> octaves
 	--local filterPower = 2^(1/2)	-- chords?
@@ -93,7 +94,7 @@ for i=0,numSamplesPerChannel-1 do
 		--[=[ add octaves only (or whatever the filterPower is set to)
 		ampl = ampl + gaussianFilter[j] * f(t * freq * filterPower^(j-gaussianFilterMid))
 		--]=]
-		-- [=[ .. and add chords 
+		-- [=[ .. and add chords
 		ampl = ampl + gaussianFilter[j] * (
 			  f(t * freq * filterPower^(j-gaussianFilterMid))
 			--+ f(t * freq * filterPower^(j-gaussianFilterMid + 4/12))	-- 2^(4/12) ~ 1.259 ~ 5/4
@@ -115,21 +116,21 @@ for i=0,numSamplesPerChannel-1 do
 	--]]
 	assert(-1 <= ampl and ampl <= 1)
 	-- ampl is [-1,1]
-	for j=0,numChannels-1 do
+	for j=0,outputChannels-1 do
 		data[e] = ampl * amplMax + amplZero
 		e=e+1
 	end
 end
-asserteq(e, numSamplesTotal)
+asserteq(e, samples)
 
 local buffer = AudioBuffer(
 	assertindex({
 		assertindex({uint8_t=al.AL_FORMAT_MONO8, int16_t=al.AL_FORMAT_MONO16}, sampleType),
 		assertindex({uint8_t=al.AL_FORMAT_STEREO8, int16_t=al.AL_FORMAT_STEREO16}, sampleType),
-	}, numChannels),	-- format
+	}, outputChannels),	-- format
 	data,					-- data
-	numSamplesTotal*ffi.sizeof(sampleType),	-- data size
-	sampleRate				-- sample rate
+	samples * ffi.sizeof(sampleType),	-- data size
+	sampleFramesPerSecond				-- sample rate
 )
 --]=]
 --[=[ just play a wav
@@ -141,4 +142,4 @@ source:play()
 
 -- wait 5 seconds
 require 'ffi.req' 'c.unistd'
-ffi.C.sleep(duration)
+ffi.C.sleep(durationInSeconds)
