@@ -2,7 +2,6 @@ local ffi = require 'ffi'
 local stdio = require 'ffi.req' 'c.stdio'
 local class = require 'ext.class'
 local table = require 'ext.table'
-local al = require 'ffi.req' 'OpenAL'
 local vorbisfile = require 'ffi.req' 'vorbis.vorbisfile'
 
 local OGGLoader = class()
@@ -49,22 +48,18 @@ function OGGLoader:load(filename)
 	local sampleRate = vi[0].rate
 	--local duration = vorbisfile.ov_time_total(vf, -1)
 
-	local format
-	if channels == 1 and bitsPerSample == 8 then
-		format = al.AL_FORMAT_MONO8
-	elseif channels == 1 and bitsPerSample == 16 then
-		format = al.AL_FORMAT_MONO16
-	elseif channels == 2 and bitsPerSample == 8 then
-		format = al.AL_FORMAT_STEREO8
-	elseif channels == 2 and bitsPerSample == 16 then
-		format = al.AL_FORMAT_STEREO16
-	end
-	if not format then
-		error("unrecognised ogg format: " .. channels .. " channels, " .. bitsPerSample .. " bps")
+	local ctype
+	if bitsPerSample == 8 then
+		ctype = 'uint8_t'
+	elseif bitsPerSample == 16 then
+		ctype = 'int16_t'
+	else
+		error("can't handle bitsPerSample "..bitsPerSample)
 	end
 
 	return {
-		format = format,
+		ctype = ctype,
+		channels = channels,
 		data = outbuf,
 		size = #outbuf,
 		freq = sampleRate,

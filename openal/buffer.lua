@@ -7,8 +7,8 @@ local path = require 'ext.path'
 local AudioBuffer = class()
 
 AudioBuffer.loaders = {
-	wav = 'audio.openal.wav',
-	ogg = 'audio.openal.ogg',
+	wav = 'audio.io.wav',
+	ogg = 'audio.io.ogg',
 }
 
 local function getLoaderForFilename(filename)
@@ -21,8 +21,26 @@ local function getLoaderForFilename(filename)
 	return loader
 end
 
+local function getALFormatForCTypeAndChannels(ctype, channels)
+	if ctype == 'uint8_t' then
+		-- OpenAL wants unsigned only for 8bpp
+		if channels == 1 then
+			return al.AL_FORMAT_MONO8
+		elseif channels == 2 then
+			return al.AL_FORMAT_STEREO8
+		end
+	elseif ctype == 'int16_t' then
+		-- OpenAL wants unsigned only for 16bpp
+		if channels == 1 then
+			return al.AL_FORMAT_MONO16
+		elseif channels == 2 then
+			return al.AL_FORMAT_STEREO16
+		end
+	end
+end
+
 -- TODO fix this and everyone that uses it ... which isn't many other projects
--- TODO the ctor is centered around files.  also buffer support? 
+-- TODO the ctor is centered around files.  also buffer support?
 function AudioBuffer:init(...)
 	local ptr = ffi.new'ALuint[1]'
 	al.alGenBuffers(1, ptr)
@@ -39,15 +57,21 @@ end
 function AudioBuffer:load(filename)
 	local loader = getLoaderForFilename(filename)
 	local result = loader:load(filename)
-	self:setData(result.format, result.data, result.size, result.freq)
-	return self
+	return self:setData(
+		result.ctype,
+		result.channels,
+		result.data,
+		result.size,
+		result.freq
+	)
 end
 
 function AudioBuffer:save(filename)
 	local loader = getLoaderForFilename(filename)
 	loader:save{
 		filename = filename,
-		format = self.format,
+		ctype = self.ctype,
+		channels = self.channels,
 		data = self.data,
 		size = self.size,
 		freq = self.freq,
@@ -55,12 +79,17 @@ function AudioBuffer:save(filename)
 	return self
 end
 
-function AudioBuffer:setData(format, data, size, freq)
-	self.format = format
+function AudioBuffer:setData(ctype, channels, data, size, freq)
+	self.ctype = ctype
+	self.channels = channels
 	self.data = data
 	self.size = size
 	self.freq = freq
-	al.alBufferData(self.id, format, data, size, freq)
+	local alFormat = getALFormatForCTypeAndChannels(ctype, channels)
+	if not alFormat then
+		error("failed to find OpenAL format for ctype="..tostring(ctype).." channels="..tostring(channels))
+	end
+	al.alBufferData(self.id, alFormat, data, size, freq)
 	return self
 end
 
@@ -68,7 +97,7 @@ function AudioBuffer:delete()
 	if self.id == nil then return end
 	local ptr = ffi.new'ALuint[1]'
 	ptr[0] = self.id
-	al.alDeleteBuffers(1, ptr) 
+	al.alDeleteBuffers(1, ptr)
 	self.id = nil
 end
 

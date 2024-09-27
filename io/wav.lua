@@ -1,11 +1,9 @@
 --[[
-TODO put this in audio/fileformats/wav.lua ?
-but sdl_mixer has its own wav loader so...
+TODO sdl_mixer has its own wav loader so... let audio subtypes override? idk
 --]]
 local ffi = require 'ffi'
 local class = require 'ext.class'
 local path = require 'ext.path'
-local al = require 'ffi.req' 'OpenAL'
 
 ffi.cdef[[
 typedef struct {
@@ -25,6 +23,14 @@ typedef struct {
 assert(ffi.sizeof'wavheader_t' == 36)
 local WavLoader = class()
 
+--[[
+returns a table containing:
+	format = ctype of output format
+	channels = how many channels
+	data = raw data buffer
+	size = data size in bytes
+	freq = sample-frames per second
+--]]
 function WavLoader:load(filename)
 	local success, result = xpcall(function()
 		-- TODO a better job with ffi since it is required
@@ -92,29 +98,18 @@ function WavLoader:load(filename)
 		local audioData = string.sub(data, dataIndex+1, dataIndex+audioDataSize)
 
 
-		local format
+		local ctype
 		if bitsPerSample == 8 then
-			if numChannels == 1 then
-				format = al.AL_FORMAT_MONO8
-			elseif numChannels == 2 then
-				format = al.AL_FORMAT_STEREO8
-			else
-				error("can't handle numChannels "..numChannels)
-			end
+			ctype = 'uint8_t'
 		elseif bitsPerSample == 16 then
-			if numChannels == 1 then
-				format = al.AL_FORMAT_MONO16
-			elseif numChannels == 2 then
-				format = al.AL_FORMAT_STEREO16
-			else
-				error("can't handle numChannels "..numChannels)
-			end
+			ctype = 'int16_t'
 		else
 			error("can't handle bitsPerSample "..bitsPerSample)
 		end
 
 		return {
-			format = format,
+			ctype = ctype,
+			channels = numChannels,
 			data = audioData,
 			size = audioDataSize,
 			freq = sampleRate,
@@ -126,6 +121,14 @@ function WavLoader:load(filename)
 	return result
 end
 
+--[[
+args:
+	filename = filename
+	ctype = ctype of the data, usually uint8_t or int16_t if it's coming from OpenAL
+	data = raw data of the ctype
+	size = data size in bytes
+	freq = sample-frames per second
+--]]
 function WavLoader:save(args)
 	--[[ TODO a proper library ...
 	local hdr = ffi.new'wavheader_t[1]'
