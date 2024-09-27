@@ -126,4 +126,13 @@ function WavLoader:load(filename)
 	return result
 end
 
+function WavLoader:save(args)
+	--[[ TODO a proper library ...
+	local hdr = ffi.new'wavheader_t[1]'
+	hdr[0].RIFF[0], hdr[0].RIFF[1], hdr[0].RIFF[2], hdr[0].RIFF[3] = ('RIFF'):byte(1,4)
+	hdr[0].WAVE[0], hdr[0].WAVE[1], hdr[0].WAVE[2], hdr[0].WAVE[3] = ('WAVE'):byte(1,4)
+	hdr[0].chunksize
+	--]]
+end
+
 return WavLoader

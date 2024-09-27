@@ -30,17 +30,38 @@ function AudioBuffer:init(...)
 	assert(self.id ~= 0, "Could not generate buffer")
 
 	if type(...) == 'string' then
-		local filename = ...
-		local loader = getLoaderForFilename(filename)
-		local result = loader:load(filename)
-		self:setData(result.format, result.data, result.size, result.freq)
+		self:load((...))
 	elseif select('#', ...) == 4 then
 		self:setData(...)
 	end
 end
 
+function AudioBuffer:load(filename)
+	local loader = getLoaderForFilename(filename)
+	local result = loader:load(filename)
+	self:setData(result.format, result.data, result.size, result.freq)
+	return self
+end
+
+function AudioBuffer:save(filename)
+	local loader = getLoaderForFilename(filename)
+	loader:save{
+		filename = filename,
+		format = self.format,
+		data = self.data,
+		size = self.size,
+		freq = self.freq,
+	}
+	return self
+end
+
 function AudioBuffer:setData(format, data, size, freq)
+	self.format = format
+	self.data = data
+	self.size = size
+	self.freq = freq
 	al.alBufferData(self.id, format, data, size, freq)
+	return self
 end
 
 function AudioBuffer:delete()
