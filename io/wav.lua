@@ -2,6 +2,7 @@
 TODO sdl_mixer has its own wav loader so... let audio subtypes override? idk
 --]]
 local ffi = require 'ffi'
+local assertindex = require 'ext.assert'.index
 local class = require 'ext.class'
 local path = require 'ext.path'
 
@@ -25,7 +26,7 @@ local WavLoader = class()
 
 --[[
 returns a table containing:
-	format = ctype of output format
+	ctype = ctype of output format
 	channels = how many channels
 	data = raw data buffer
 	size = data size in bytes
@@ -125,17 +126,38 @@ end
 args:
 	filename = filename
 	ctype = ctype of the data, usually uint8_t or int16_t if it's coming from OpenAL
+	channels = how many channels
 	data = raw data of the ctype
 	size = data size in bytes
 	freq = sample-frames per second
 --]]
 function WavLoader:save(args)
-	--[[ TODO a proper library ...
+	local filename = assertindex(args, 'filename')
+	local ctype = assertindex(args, 'ctype')
+	local data = assertindex(args, 'data')
+	local dataSize = assertindex(args, 'size')
+	local channels = assertindex(args, 'channels')
+	local freq = assertindex(args, 'freq')
+	
 	local hdr = ffi.new'wavheader_t[1]'
 	hdr[0].RIFF[0], hdr[0].RIFF[1], hdr[0].RIFF[2], hdr[0].RIFF[3] = ('RIFF'):byte(1,4)
 	hdr[0].WAVE[0], hdr[0].WAVE[1], hdr[0].WAVE[2], hdr[0].WAVE[3] = ('WAVE'):byte(1,4)
-	hdr[0].chunksize
-	--]]
+	hdr[0].fmt_[0], hdr[0].fmt_[1], hdr[0].fmt_[2], hdr[0].fmt_[3] = ('fmt '):byte(1,4)
+	hdr[0].chunksize = 16 -- dataSize	-- ???
+	hdr[0].subchunk1size = 16
+	hdr[0].audioFormat = 1
+	hdr[0].numChannels = channels
+	hdr[0].sampleRate = freq
+	local bytesPerSample = ffi.sizeof(ctype)
+	hdr[0].bitsPerSample = bytesPerSample  * 8
+	hdr[0].byteRate = hdr[0].sampleRate * channels * bytesPerSample
+	hdr[0].blockAlign = channels * bytesPerSample
+	path(filename):write(
+		ffi.string(ffi.cast('char*', hdr), ffi.sizeof(hdr))
+		..'data'
+		..ffi.string(ffi.cast('char*', ffi.new('uint32_t[1]', dataSize)), 4)
+		..ffi.string(data, dataSize)
+	)
 end
 
 return WavLoader
