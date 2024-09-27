@@ -143,7 +143,7 @@ function WavLoader:save(args)
 	hdr[0].RIFF[0], hdr[0].RIFF[1], hdr[0].RIFF[2], hdr[0].RIFF[3] = ('RIFF'):byte(1,4)
 	hdr[0].WAVE[0], hdr[0].WAVE[1], hdr[0].WAVE[2], hdr[0].WAVE[3] = ('WAVE'):byte(1,4)
 	hdr[0].fmt_[0], hdr[0].fmt_[1], hdr[0].fmt_[2], hdr[0].fmt_[3] = ('fmt '):byte(1,4)
-	hdr[0].chunksize = 16 -- dataSize	-- ???
+	hdr[0].chunksize = ffi.sizeof(hdr) + dataSize
 	hdr[0].subchunk1size = 16
 	hdr[0].audioFormat = 1
 	hdr[0].numChannels = channels
