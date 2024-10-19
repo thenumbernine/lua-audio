@@ -2,7 +2,7 @@
 TODO sdl_mixer has its own wav loader so... let audio subtypes override? idk
 --]]
 local ffi = require 'ffi'
-local assertindex = require 'ext.assert'.index
+local assert = require 'ext.assert'
 local class = require 'ext.class'
 local path = require 'ext.path'
 
@@ -132,12 +132,12 @@ args:
 	freq = sample-frames per second
 --]]
 function WavLoader:save(args)
-	local filename = assertindex(args, 'filename')
-	local ctype = assertindex(args, 'ctype')
-	local data = assertindex(args, 'data')
-	local dataSize = assertindex(args, 'size')
-	local channels = assertindex(args, 'channels')
-	local freq = assertindex(args, 'freq')
+	local filename = assert.index(args, 'filename')
+	local ctype = assert.index(args, 'ctype')
+	local data = assert.index(args, 'data')
+	local dataSize = assert.index(args, 'size')
+	local channels = assert.index(args, 'channels')
+	local freq = assert.index(args, 'freq')
 	
 	local hdr = ffi.new'wavheader_t[1]'
 	hdr[0].RIFF[0], hdr[0].RIFF[1], hdr[0].RIFF[2], hdr[0].RIFF[3] = ('RIFF'):byte(1,4)

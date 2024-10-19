@@ -1,8 +1,6 @@
 #!/usr/bin/env luajit
 local ffi = require 'ffi'
-local asserteq = require 'ext.assert'.eq
-local asserttype = require 'ext.assert'.type
-local assertindex = require 'ext.assert'.index
+local assert = require 'ext.assert'
 local al = require 'ffi.req' 'OpenAL'
 local Audio = require 'audio'
 local AudioSource = require 'audio.source'
@@ -60,8 +58,8 @@ gaussianFilter[gaussianFilterMid] = 1
 --	section 5.3.4:
 -- "8-bit data is expressed as an unsigned value over the range 0 to 255, 128 being an audio output level of zero."
 -- "16-bit data is expressed as a signed value over the range -32768 to 32767, 0 being an audio output level of zero. Byte order for 16-bit values is determined by the native format of the CPU."
-local amplZero = assertindex({uint8_t=128, int16_t=0}, sampleType)
-local amplMax = assertindex({uint8_t=127, int16_t=32767}, sampleType)
+local amplZero = assert.index({uint8_t=128, int16_t=0}, sampleType)
+local amplMax = assert.index({uint8_t=127, int16_t=32767}, sampleType)
 local e = 0
 for i=0,sampleFrames-1 do
 	local t = i/sampleFramesPerSecond
@@ -121,12 +119,12 @@ for i=0,sampleFrames-1 do
 		e=e+1
 	end
 end
-asserteq(e, samples)
+assert.eq(e, samples)
 
 local buffer = AudioBuffer(
-	assertindex({
-		assertindex({uint8_t=al.AL_FORMAT_MONO8, int16_t=al.AL_FORMAT_MONO16}, sampleType),
-		assertindex({uint8_t=al.AL_FORMAT_STEREO8, int16_t=al.AL_FORMAT_STEREO16}, sampleType),
+	assert.index({
+		assert.index({uint8_t=al.AL_FORMAT_MONO8, int16_t=al.AL_FORMAT_MONO16}, sampleType),
+		assert.index({uint8_t=al.AL_FORMAT_STEREO8, int16_t=al.AL_FORMAT_STEREO16}, sampleType),
 	}, outputChannels),	-- format
 	data,					-- data
 	samples * ffi.sizeof(sampleType),	-- data size
@@ -134,7 +132,7 @@ local buffer = AudioBuffer(
 )
 --]=]
 --[=[ just play a wav
-local buffer = AudioBuffer((asserttype(..., 'string')))
+local buffer = AudioBuffer((assert.type(..., 'string')))
 --]=]
 local source = AudioSource()
 source:setBuffer(buffer)
