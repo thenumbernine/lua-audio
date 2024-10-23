@@ -122,10 +122,8 @@ end
 assert.eq(e, samples)
 
 local buffer = AudioBuffer(
-	assert.index({
-		assert.index({uint8_t=al.AL_FORMAT_MONO8, int16_t=al.AL_FORMAT_MONO16}, sampleType),
-		assert.index({uint8_t=al.AL_FORMAT_STEREO8, int16_t=al.AL_FORMAT_STEREO16}, sampleType),
-	}, outputChannels),	-- format
+	sampleType,
+	outputChannels,
 	data,					-- data
 	samples * ffi.sizeof(sampleType),	-- data size
 	sampleFramesPerSecond				-- sample rate

@@ -47,7 +47,7 @@ function AudioBuffer:init(...)
 	self.id = ptr[0]
 	assert(self.id ~= 0, "Could not generate buffer")
 
-	if type(...) == 'string' then
+	if select('#', ...) == 1 and type(...) == 'string' then
 		self:load((...))
 	elseif select('#', ...) == 4 then
 		self:setData(...)
