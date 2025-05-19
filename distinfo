@@ -1,0 +1,28 @@
+name = "audio"
+files = {
+	["README.md"] = "audio/README.md",
+	["audio-dev-1.rockspec"] = "audio/audio-dev-1.rockspec",
+	["audio.lua"] = "audio/audio.lua",
+	["buffer.lua"] = "audio/buffer.lua",
+	["currentsystem.lua"] = "audio/currentsystem.lua",
+	["io/ogg.lua"] = "audio/io/ogg.lua",
+	["io/wav.lua"] = "audio/io/wav.lua",
+	["null/audio.lua"] = "audio/null/audio.lua",
+	["null/buffer.lua"] = "audio/null/buffer.lua",
+	["null/source.lua"] = "audio/null/source.lua",
+	["openal/audio.lua"] = "audio/openal/audio.lua",
+	["openal/buffer.lua"] = "audio/openal/buffer.lua",
+	["openal/source.lua"] = "audio/openal/source.lua",
+	["sdl_mixer/audio.lua"] = "audio/sdl_mixer/audio.lua",
+	["sdl_mixer/buffer.lua"] = "audio/sdl_mixer/buffer.lua",
+	["sdl_mixer/source.lua"] = "audio/sdl_mixer/source.lua",
+	["source.lua"] = "audio/source.lua",
+	["test/resave.lua"] = "audio/test/resave.lua",
+	["test/test.lua"] = "audio/test/test.lua",
+}
+deps = {
+	"ext",
+	"ffi",
+	"matrix",
+	"sdl",
+}
