@@ -6,6 +6,11 @@ local assert = require 'ext.assert'
 local class = require 'ext.class'
 local path = require 'ext.path'
 
+local uint8_t = ffi.typeof'uint8_t'
+local int16_t = ffi.typeof'int16_t'
+local char_p = ffi.typeof'char*'
+local uint32_t_1 = ffi.typeof'uint32_t[1]'
+
 ffi.cdef[[
 typedef struct {
 	char RIFF[4];
@@ -21,7 +26,9 @@ typedef struct {
 	uint16_t bitsPerSample;
 } wavheader_t;
 ]]
-assert(ffi.sizeof'wavheader_t' == 36)
+local wavheader_t = ffi.typeof'wavheader_t'
+local wavheader_t_1 = ffi.typeof'wavheader_t[1]'
+assert.eq(ffi.sizeof(wavheader_t), 36)
 local WavLoader = class()
 
 --[[
@@ -39,12 +46,12 @@ function WavLoader:load(filename)
 		local data = assert(path(filename):read())
 		local datalen = #data
 		local dataIndex = 0
-		local ptr = ffi.cast('char*', data)
+		local ptr = ffi.cast(char_p, data)
 
 		-- courtesy of https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
-		local hdr = ffi.new'wavheader_t[1]'
-		ffi.copy(hdr, ptr, ffi.sizeof'wavheader_t')
-		dataIndex = dataIndex + ffi.sizeof'wavheader_t'
+		local hdr = wavheader_t_1()
+		ffi.copy(hdr, ptr, ffi.sizeof(wavheader_t))
+		dataIndex = dataIndex + ffi.sizeof(wavheader_t)
 
 		local sigRIFF = ffi.string(hdr[0].RIFF, 4)
 		if sigRIFF ~= 'RIFF' then
@@ -71,7 +78,7 @@ function WavLoader:load(filename)
 		assert(byteRate == sampleRate * numChannels * bitsPerSample / 8)
 
 		-- audacity has junk ...
-		local uint32 = ffi.new'uint32_t[1]'
+		local uint32 = uint32_t_1()
 		local chunkid = nil
 		local chunksize = nil
 		while dataIndex < datalen do
@@ -101,9 +108,9 @@ function WavLoader:load(filename)
 
 		local ctype
 		if bitsPerSample == 8 then
-			ctype = 'uint8_t'
+			ctype = uint8_t
 		elseif bitsPerSample == 16 then
-			ctype = 'int16_t'
+			ctype = int16_t
 		else
 			error("can't handle bitsPerSample "..bitsPerSample)
 		end
@@ -138,8 +145,10 @@ function WavLoader:save(args)
 	local dataSize = assert.index(args, 'size')
 	local channels = assert.index(args, 'channels')
 	local freq = assert.index(args, 'freq')
-	
-	local hdr = ffi.new'wavheader_t[1]'
+
+	assert.eq(ctype, ffi.typeof(ctype), "expected ctype to be a ffi type")
+
+	local hdr = wavheader_t_1()
 	hdr[0].RIFF[0], hdr[0].RIFF[1], hdr[0].RIFF[2], hdr[0].RIFF[3] = ('RIFF'):byte(1,4)
 	hdr[0].WAVE[0], hdr[0].WAVE[1], hdr[0].WAVE[2], hdr[0].WAVE[3] = ('WAVE'):byte(1,4)
 	hdr[0].fmt_[0], hdr[0].fmt_[1], hdr[0].fmt_[2], hdr[0].fmt_[3] = ('fmt '):byte(1,4)
@@ -153,9 +162,9 @@ function WavLoader:save(args)
 	hdr[0].byteRate = hdr[0].sampleRate * channels * bytesPerSample
 	hdr[0].blockAlign = channels * bytesPerSample
 	path(filename):write(
-		ffi.string(ffi.cast('char*', hdr), ffi.sizeof(hdr))
+		ffi.string(ffi.cast(char_p, hdr), ffi.sizeof(hdr))
 		..'data'
-		..ffi.string(ffi.cast('char*', ffi.new('uint32_t[1]', dataSize)), 4)
+		..ffi.string(ffi.cast(char_p, uint32_t_1(dataSize)), 4)
 		..ffi.string(data, dataSize)
 	)
 end

@@ -6,6 +6,9 @@ local Audio = require 'audio'
 local AudioSource = require 'audio.source'
 local AudioBuffer = require 'audio.buffer'
 
+local uint8_t = ffi.typeof'uint8_t'
+local int16_t = ffi.typeof'int16_t'
+
 local audio = Audio()
 
 local durationInSeconds = 2 	-- seconds
@@ -18,12 +21,13 @@ local sampleFramesPerSecond = 32000			-- sample frames / second <- SNES SPC samp
 --local sampleFramesPerSecond = 48000			-- sample frames / second
 local outputChannels = 1
 --local outputChannels = 2	-- channels?  whats it called mono vs stereo, number of outputs?  idk terminology
-local sampleType = 'uint8_t'
---local sampleType = 'int16_t'
+local sampleType = uint8_t
+--local sampleType = int16_t
 
 local sampleFrames = sampleFramesPerSecond * durationInSeconds	-- ... x 5 seconds of play
 local samples = sampleFrames * outputChannels
-local data = ffi.new(sampleType..'[?]', samples)	-- x2 for stereo
+local sampleTypeArr = ffi.typeof('$[?]', sampleType)
+local data = sampleTypeArr(samples)	-- x2 for stereo
 
 local function sinewave(t)
 	return math.sin(t * (2 * math.pi))
@@ -58,8 +62,8 @@ gaussianFilter[gaussianFilterMid] = 1
 --	section 5.3.4:
 -- "8-bit data is expressed as an unsigned value over the range 0 to 255, 128 being an audio output level of zero."
 -- "16-bit data is expressed as a signed value over the range -32768 to 32767, 0 being an audio output level of zero. Byte order for 16-bit values is determined by the native format of the CPU."
-local amplZero = assert.index({uint8_t=128, int16_t=0}, sampleType)
-local amplMax = assert.index({uint8_t=127, int16_t=32767}, sampleType)
+local amplZero = assert.index({[tostring(uint8_t)]=128, [tostring(int16_t)]=0}, tostring(sampleType))
+local amplMax = assert.index({[tostring(uint8_t)]=127, [tostring(int16_t)]=32767}, tostring(sampleType))
 local e = 0
 for i=0,sampleFrames-1 do
 	local t = i/sampleFramesPerSecond
