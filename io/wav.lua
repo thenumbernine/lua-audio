@@ -146,7 +146,7 @@ function WavLoader:save(args)
 	local channels = assert.index(args, 'channels')
 	local freq = assert.index(args, 'freq')
 
-	assert.eq(ctype, ffi.typeof(ctype), "expected ctype to be a ffi type")
+	ctype = ffi.typeof(ctype)
 
 	local hdr = wavheader_t_1()
 	hdr[0].RIFF[0], hdr[0].RIFF[1], hdr[0].RIFF[2], hdr[0].RIFF[3] = ('RIFF'):byte(1,4)
