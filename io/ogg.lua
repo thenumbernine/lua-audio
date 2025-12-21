@@ -6,7 +6,7 @@ local vorbisfile = require 'ffi.req' 'vorbis.vorbisfile'
 
 
 local uint8_t = ffi.typeof'uint8_t'
-local int16 = ffi.typeof'int16_t'
+local int16_t = ffi.typeof'int16_t'
 local char_4096 = ffi.typeof'char[4096]'
 local int_1 = ffi.typeof'int[1]'
 local OggVorbis_File_1 = ffi.typeof'OggVorbis_File[1]'

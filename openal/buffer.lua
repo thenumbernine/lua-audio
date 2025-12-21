@@ -85,7 +85,7 @@ function AudioBuffer:save(filename)
 end
 
 function AudioBuffer:setData(ctype, channels, data, size, freq)
-	self.ctype = ctype
+	self.ctype = assert(ffi.typeof(ctype))
 	self.channels = channels
 	self.data = data
 	self.size = size
