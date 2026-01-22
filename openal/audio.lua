@@ -1,5 +1,5 @@
 require 'ext.gc'	-- add __gc to luajit
-local al = require 'ffi.req' 'OpenAL'
+local al = require 'audio.ffi.OpenAL'
 local class = require 'ext.class'
 
 local method = 'alc'
@@ -11,7 +11,7 @@ if method == 'alc' then
 	-- TODO separate context from device
 elseif method == 'alut' then
 	Audio.__gc = function()
-		local alut = require 'ffi.req' 'OpenALUT'
+		local alut = require 'audio.ffi.OpenALUT'
 		alut.alutExit()
 	end
 else
@@ -36,7 +36,7 @@ function Audio:init()
 
 		al.alcMakeContextCurrent(self.ctx)
 	elseif method == 'alut' then
-		local alut = require 'ffi.req' 'OpenALUT'
+		local alut = require 'audio.ffi.OpenALUT'
 
 		local alutErrors = {}
 		for _,k in ipairs{
@@ -85,7 +85,7 @@ if method == 'alc' then
 	self.ctx = nil
 	self.dev = nil
 elseif method == 'alut' then
-	local alut = require 'ffi.req' 'OpenALUT'
+	local alut = require 'audio.ffi.OpenALUT'
 	alut.alutExit()
 end
 end

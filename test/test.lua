@@ -1,7 +1,7 @@
 #!/usr/bin/env luajit
 local ffi = require 'ffi'
 local assert = require 'ext.assert'
-local al = require 'ffi.req' 'OpenAL'
+local al = require 'audio.ffi.OpenAL'
 local Audio = require 'audio'
 local AudioSource = require 'audio.source'
 local AudioBuffer = require 'audio.buffer'

@@ -1,6 +1,6 @@
 require 'ext.gc'	-- add __gc to luajit
 local ffi = require 'ffi'
-local al = require 'ffi.req' 'OpenAL'
+local al = require 'audio.ffi.OpenAL'
 local class = require 'ext.class'
 local AudioBuffer = require 'audio.openal.buffer'
 

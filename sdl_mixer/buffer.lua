@@ -1,6 +1,6 @@
 require 'ext.gc'	-- add __gc to luajit
 local sdl = require 'sdl'
-local mix = require 'ffi.req' 'sdl_mixer'
+local mix = require 'sdl.ffi.sdl_mixer'
 local class = require 'ext.class'
 
 
