@@ -58,7 +58,7 @@ deps = {
 	"sdl",
 }
 
-generateBindings = {
+generateBindings = function()return{
 	{
 		inc = '<ogg/ogg.h>',
 		-- build this separately for each OS.
@@ -158,4 +158,4 @@ return require 'ffi.load' 'openal'
 			openal = {Windows = 'OpenAL32'},
 		},
 	},
-}
+}end
