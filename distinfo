@@ -1,79 +1,93 @@
+--------------------------------------------
+-- generated with dist/build-distinfo.rua --
+--------------------------------------------
+
 name = "audio"
 files = {
-	["README.md"] = "audio/README.md",
-	["audio-dev-1.rockspec"] = "audio/audio-dev-1.rockspec",
-	["audio.lua"] = "audio/audio.lua",
-	["buffer.lua"] = "audio/buffer.lua",
-	["currentsystem.lua"] = "audio/currentsystem.lua",
-	["io/ogg.lua"] = "audio/io/ogg.lua",
-	["io/wav.lua"] = "audio/io/wav.lua",
-	["null/audio.lua"] = "audio/null/audio.lua",
-	["null/buffer.lua"] = "audio/null/buffer.lua",
-	["null/source.lua"] = "audio/null/source.lua",
-	["openal/audio.lua"] = "audio/openal/audio.lua",
-	["openal/buffer.lua"] = "audio/openal/buffer.lua",
-	["openal/source.lua"] = "audio/openal/source.lua",
-	["sdl_mixer/audio.lua"] = "audio/sdl_mixer/audio.lua",
-	["sdl_mixer/buffer.lua"] = "audio/sdl_mixer/buffer.lua",
-	["sdl_mixer/source.lua"] = "audio/sdl_mixer/source.lua",
-	["source.lua"] = "audio/source.lua",
-	["test/resave.lua"] = "audio/test/resave.lua",
-	["test/test.lua"] = "audio/test/test.lua",
-	["bin/Linux/x64/libogg.so"] = "audio/bin/Linux/x64/libogg.so",
-	["bin/Linux/x64/libvorbisenc.so"] = "audio/bin/Linux/x64/libvorbisenc.so",
-	["bin/Linux/x64/libvorbisfile.so"] = "audio/bin/Linux/x64/libvorbisfile.so",
-	["bin/Linux/x64/libvorbis.so"] = "audio/bin/Linux/x64/libvorbis.so",
-	["bin/OSX/x64/libvorbis.dylib"] = "audio/bin/OSX/x64/libvorbis.dylib",
-	["bin/OSX/x64/libogg.dylib"] = "audio/bin/OSX/x64/libogg.dylib",
-	["bin/OSX/x64/libvorbisfile.dylib"] = "audio/bin/OSX/x64/libvorbisfile.dylib",
-	["bin/Windows/x64/LICENSE.opusfile.txt"] = "audio/bin/Windows/x64/LICENSE.opusfile.txt",
-	["bin/Windows/x64/OpenAL32.dll"] = "audio/bin/Windows/x64/OpenAL32.dll",
-	["bin/Windows/x64/LICENSE.modplug.txt"] = "audio/bin/Windows/x64/LICENSE.modplug.txt",
-	["bin/Windows/x64/vorbis.dll"] = "audio/bin/Windows/x64/vorbis.dll",
-	["bin/Windows/x64/libopusfile-0.dll"] = "audio/bin/Windows/x64/libopusfile-0.dll",
-	["bin/Windows/x64/libopus-0.dll"] = "audio/bin/Windows/x64/libopus-0.dll",
-	["bin/Windows/x64/libvorbis-0.dll"] = "audio/bin/Windows/x64/libvorbis-0.dll",
-	["bin/Windows/x64/LICENSE.ogg-vorbis.txt"] = "audio/bin/Windows/x64/LICENSE.ogg-vorbis.txt",
-	["bin/Windows/x64/libmpg123-0.dll"] = "audio/bin/Windows/x64/libmpg123-0.dll",
-	["bin/Windows/x64/libmodplug-1.dll"] = "audio/bin/Windows/x64/libmodplug-1.dll",
-	["bin/Windows/x64/libvorbisfile-3.dll"] = "audio/bin/Windows/x64/libvorbisfile-3.dll",
-	["bin/Windows/x64/LICENSE.FLAC.txt"] = "audio/bin/Windows/x64/LICENSE.FLAC.txt",
-	["bin/Windows/x64/libFLAC-8.dll"] = "audio/bin/Windows/x64/libFLAC-8.dll",
-	["bin/Windows/x64/ogg.dll"] = "audio/bin/Windows/x64/ogg.dll",
-	["bin/Windows/x64/LICENSE.mpg123.txt"] = "audio/bin/Windows/x64/LICENSE.mpg123.txt",
-	["bin/Windows/x64/LICENSE.opus.txt"] = "audio/bin/Windows/x64/LICENSE.opus.txt",
-	["bin/Windows/x64/libogg-0.dll"] = "audio/bin/Windows/x64/libogg-0.dll",
-	["bin/Windows/x64/vorbisfile.dll"] = "audio/bin/Windows/x64/vorbisfile.dll",
-	["ffi/OpenAL.lua"] = "audio/ffi/OpenAL.lua",
-	["ffi/OpenALUT.lua"] = "audio/ffi/OpenALUT.lua",
-	["ffi/ogg.lua"] = "audio/ffi/ogg.lua",
-	["ffi/vorbis/codec.lua"] = "audio/ffi/vorbis/codec.lua",
-	["ffi/vorbis/vorbisfile.lua"] = "audio/ffi/vorbis/vorbisfile.lua",
+	"README.md",
+	"audio-dev-1.rockspec",
+	"audio.lua",
+	"buffer.lua",
+	"currentsystem.lua",
+	"distinfo",
+	"ffi/OpenAL.lua",
+	"ffi/OpenALUT.lua",
+	"ffi/ogg.lua",
+	"ffi/vorbiscodec.lua",
+	"ffi/vorbisfile.lua",
+	"io/ogg.lua",
+	"io/wav.lua",
+	"null/audio.lua",
+	"null/buffer.lua",
+	"null/source.lua",
+	"openal/audio.lua",
+	"openal/buffer.lua",
+	"openal/source.lua",
+	"sdl_mixer/audio.lua",
+	"sdl_mixer/buffer.lua",
+	"sdl_mixer/source.lua",
+	"source.lua",
+	"test/resave.lua",
+	"test/test.lua",
 }
+if ffi.os == "Linux" and ffi.arch == "x64" then
+	table.append(files, {
+		"bin/Linux/x64/libogg.so",
+		"bin/Linux/x64/libvorbis.so",
+		"bin/Linux/x64/libvorbisenc.so",
+		"bin/Linux/x64/libvorbisfile.so",
+	})
+end
+if ffi.os == "OSX" and ffi.arch == "x64" then
+	table.append(files, {
+		"bin/OSX/x64/libogg.dylib",
+		"bin/OSX/x64/libvorbis.dylib",
+		"bin/OSX/x64/libvorbisfile.dylib",
+	})
+end
+if ffi.os == "Windows" and ffi.arch == "x64" then
+	table.append(files, {
+		"bin/Windows/x64/LICENSE.FLAC.txt",
+		"bin/Windows/x64/LICENSE.modplug.txt",
+		"bin/Windows/x64/LICENSE.mpg123.txt",
+		"bin/Windows/x64/LICENSE.ogg-vorbis.txt",
+		"bin/Windows/x64/LICENSE.opus.txt",
+		"bin/Windows/x64/LICENSE.opusfile.txt",
+		"bin/Windows/x64/OpenAL32.dll",
+		"bin/Windows/x64/libFLAC-8.dll",
+		"bin/Windows/x64/libmodplug-1.dll",
+		"bin/Windows/x64/libmpg123-0.dll",
+		"bin/Windows/x64/libogg-0.dll",
+		"bin/Windows/x64/libopus-0.dll",
+		"bin/Windows/x64/libopusfile-0.dll",
+		"bin/Windows/x64/libvorbis-0.dll",
+		"bin/Windows/x64/libvorbisfile-3.dll",
+		"bin/Windows/x64/ogg.dll",
+		"bin/Windows/x64/vorbis.dll",
+		"bin/Windows/x64/vorbisfile.dll",
+	})
+end
 
 deps = {
 	"ext",
 	"ffi",
-	"matrix",
-	"sdl",
+	--"matrix",	-- just tests
+	--"sdl",	-- optional dependency
 }
 
 generateBindings = function()return{
 	{
 		inc = '<ogg/ogg.h>',
-		-- build this separately for each OS.
-		-- generate the os splitter file
-		out = ffi.os..'/ogg.lua',
-		os = ffi.os,
+		out = 'ogg.lua',
 	},
 
 	{
 		inc = '<vorbis/codec.h>',
-		out = 'vorbis/codec.lua',
+		out = 'vorbiscodec.lua',
 	},
 	{
 		inc = '<vorbis/vorbisfile.h>',
-		out = 'vorbis/vorbisfile.lua',
+		out = 'vorbisfile.lua',
 		includedirs = {
 			'/usr/include/vorbis',
 			'/usr/local/include/vorbis',

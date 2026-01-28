@@ -2,7 +2,7 @@ local ffi = require 'ffi'
 local stdio = require 'ffi.req' 'c.stdio'
 local class = require 'ext.class'
 local table = require 'ext.table'
-local vorbisfile = require 'audio.ffi.vorbis.vorbisfile'
+local vorbisfile = require 'audio.ffi.vorbisfile'
 
 
 local uint8_t = ffi.typeof'uint8_t'
