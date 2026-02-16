@@ -30,6 +30,15 @@ files = {
 	"test/resave.lua",
 	"test/test.lua",
 }
+if ffi.os == "Android" and ffi.arch == "arm" then
+	table.append(files, {
+		"bin/Android/arm/libogg.so",
+		"bin/Android/arm/libopenal.so",
+		"bin/Android/arm/libvorbis.so",
+		"bin/Android/arm/libvorbisenc.so",
+		"bin/Android/arm/libvorbisfile.so",
+	})
+end
 if ffi.os == "Linux" and ffi.arch == "x64" then
 	table.append(files, {
 		"bin/Linux/x64/libogg.so",
@@ -67,7 +76,6 @@ if ffi.os == "Windows" and ffi.arch == "x64" then
 		"bin/Windows/x64/vorbisfile.dll",
 	})
 end
-
 deps = {
 	"ext",
 	"ffi",
