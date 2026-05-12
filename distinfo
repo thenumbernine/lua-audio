@@ -170,7 +170,7 @@ return setmetatable({
 		moreincs = {
 			'<AL/alc.h>',
 		},
-		includedirs = targetOS == 'OSX' and {
+		includedirs = ffi.os == 'OSX' and {
 			'/usr/local/opt/openal-soft/include',
 		} or nil,
 		out = 'OpenAL.lua',
