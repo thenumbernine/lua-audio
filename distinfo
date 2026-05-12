@@ -33,7 +33,7 @@ files = {
 	"test/resave.lua",
 	"test/test.lua",
 }
-if ffi.os == "Android" and ffi.arch == "arm" then
+if targetOS == "Android" and targetArch == "arm" then
 	table.append(files, {
 		"bin/Android/arm/libogg.so",
 		"bin/Android/arm/libopenal.so",
@@ -42,7 +42,7 @@ if ffi.os == "Android" and ffi.arch == "arm" then
 		"bin/Android/arm/libvorbisfile.so",
 	})
 end
-if ffi.os == "Linux" and ffi.arch == "x64" then
+if targetOS == "Linux" and targetArch == "x64" then
 	table.append(files, {
 		"bin/Linux/x64/libogg.so",
 		"bin/Linux/x64/libvorbis.so",
@@ -50,14 +50,14 @@ if ffi.os == "Linux" and ffi.arch == "x64" then
 		"bin/Linux/x64/libvorbisfile.so",
 	})
 end
-if ffi.os == "OSX" and ffi.arch == "x64" then
+if targetOS == "OSX" and targetArch == "x64" then
 	table.append(files, {
 		"bin/OSX/x64/libogg.dylib",
 		"bin/OSX/x64/libvorbis.dylib",
 		"bin/OSX/x64/libvorbisfile.dylib",
 	})
 end
-if ffi.os == "Windows" and ffi.arch == "x64" then
+if targetOS == "Windows" and targetArch == "x64" then
 	table.append(files, {
 		"bin/Windows/x64/LICENSE.FLAC.txt",
 		"bin/Windows/x64/LICENSE.modplug.txt",
@@ -170,7 +170,7 @@ return setmetatable({
 		moreincs = {
 			'<AL/alc.h>',
 		},
-		includedirs = ffi.os == 'OSX' and {
+		includedirs = targetOS == 'OSX' and {
 			'/usr/local/opt/openal-soft/include',
 		} or nil,
 		out = 'OpenAL.lua',
