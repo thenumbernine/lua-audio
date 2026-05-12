@@ -3,6 +3,9 @@
 --------------------------------------------
 
 name = "audio"
+
+git = "https://github.com/thenumbernine/lua-audio"
+
 files = {
 	"README.md",
 	"audio-dev-1.rockspec",
